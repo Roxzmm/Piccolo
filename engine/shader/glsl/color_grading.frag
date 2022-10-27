@@ -19,5 +19,18 @@ void main()
     
     // texture(color_grading_lut_texture_sampler, uv)
 
+    highp float x = float(lut_tex_size.x), y = float(lut_tex_size.y);
+    highp float u, v;
+    u = floor(color.b * (y - 1.0f)) / (y - 1.0f) * (x - y);
+    u += (color.r * (y - 1.0f));
+    u /= (x - 1.0f);
+    v = color.g;
+    highp vec2 uv = vec2(u, v);
+    
+    highp vec3 lut_color1 = texture(color_grading_lut_texture_sampler, uv).rgb;
+    highp vec3 lut_color2 = texture(color_grading_lut_texture_sampler, uv + vec2(1.0f / (y - 1.0f) * (x - y) / (x - 1.0f), 0)).rgb;
+    
+    color.rgb = mix(lut_color1, lut_color2, fract(color.b * (y - 1.0f)));
+
     out_color = color;
 }
