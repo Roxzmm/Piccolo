@@ -77,16 +77,48 @@ namespace Pilot
         hits.clear();
 
         // side pass
-        //if (physics_scene->sweep(
-        //    m_rigidbody_shape,
-        //    /**** [0] ****/,
-        //    /**** [1] ****/,
-        //    /**** [2] ****/,
-        //    hits))
-        //{
-        //    final_position += /**** [3] ****/;
-        //}
-        //else
+        if (physics_scene->sweep(
+            m_rigidbody_shape,
+            world_transform.getMatrix(),
+            horizontal_direction,
+            horizontal_displacement.length(),
+            hits))
+        {
+            // first, check if there is an obstacle on the initial direction
+            float hitDistance = hits[0].hit_distance;
+            Vector3 normal = hits[0].hit_normal;
+            hits.clear();
+
+            // calculate the projection vector of the initial displacement
+            Vector3 delta_displacement = horizontal_displacement.Vector3::project(normal);
+            Vector3 delta_direction = delta_displacement.normalisedCopy();
+            if (horizontal_displacement[0] * normal[1] != horizontal_displacement[1] * normal[0])
+            {
+                // second, check if there is an obstacle on the adjusted direction
+                if (!physics_scene->sweep(
+                    m_rigidbody_shape,
+                    world_transform.getMatrix(),
+                    delta_direction,
+                    delta_displacement.length(),
+                    hits))
+                {
+                    final_position += delta_displacement;
+                }
+                else {
+                    final_position += hits[0].hit_distance * delta_direction;
+                }
+            }
+
+            //if (!m_is_touch_ground)
+            //{
+            //    final_position -= hitDistance * horizontal_direction;
+            //}
+            //else
+            //{
+            //    final_position += hitDistance * horizontal_direction;
+            //}
+        }
+        else
         {
             final_position += horizontal_displacement;
         }
