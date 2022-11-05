@@ -131,7 +131,16 @@ namespace Piccolo
             if ((unsigned int)GameCommand::jump & command)
             {
                 m_jump_state                  = JumpState::rising;
-                m_vertical_move_speed         = Math::sqrt(m_motor_res.m_jump_height * 2 * gravity);
+
+                if (m_motor_res.m_jump_speed != 0.f)
+                {
+                    m_vertical_move_speed = m_motor_res.m_jump_speed;
+                }
+                else
+                {
+                    m_vertical_move_speed = Math::sqrt(m_motor_res.m_jump_height * 2 * gravity);
+                }
+
                 m_jump_horizontal_speed_ratio = m_move_speed_ratio;
             }
             else
